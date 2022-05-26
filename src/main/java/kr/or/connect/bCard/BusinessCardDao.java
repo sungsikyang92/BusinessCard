@@ -22,6 +22,7 @@ public class BusinessCardDao {
 			System.out.println("1. 명함입력 ");
 			System.out.println("2. 명함검색 ");
 			System.out.println("3. 종료 ");
+			System.out.println("4. 전체출력");
 			System.out.println("-----------------------");
 			System.out.println("메뉴를 입력하세요 ");
 			int sel = sc.nextInt();
@@ -42,11 +43,43 @@ public class BusinessCardDao {
 				String s_name = sc.nextLine();
 				System.out.println(searchByName(s_name));
 				break;
-			case 3: System.out.println("종료합니다. "); return;
+			case 3: 
+				System.out.println("전체 출력합니다. "); 
+				printAll();
+				break;
+			case 4: System.out.println("종료합니다. "); return;
 			default: System.out.println("잘못된 입력입니다. "); break;
 			}
 		}
 	}
+	
+	public void printAll() {
+		businessCard = null;
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		String sql = "SELECT name, phone, companyName, createDate FROM business_card";
+		try (Connection con = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+				PreparedStatement ps = con.prepareStatement(sql)){
+			try (ResultSet rs = ps.executeQuery()){
+				while(rs.next()) {
+					String a_name = rs.getString(1);
+					String a_phone = rs.getString(2);
+					String a_companyName = rs.getString(3);
+					Date a_createDate = rs.getDate(4); 
+					businessCard = new BusinessCard(a_name, a_phone, a_companyName, a_createDate);
+					System.out.println(businessCard);
+				}
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	
 	public BusinessCard searchByName(String s_name) {
 		businessCard = null;
